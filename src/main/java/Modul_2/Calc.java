@@ -7,10 +7,7 @@ import javafx.geometry.Insets;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
-import javafx.scene.layout.FlowPane;
-import javafx.scene.layout.GridPane;
-import javafx.scene.layout.HBox;
-import javafx.scene.layout.VBox;
+import javafx.scene.layout.*;
 import javafx.scene.text.Font;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
@@ -19,6 +16,7 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import javafx.scene.chart.ScatterChart;
 
 public class Calc extends Application {
 
@@ -112,7 +110,7 @@ public class Calc extends Application {
         Button saveButton = new Button("Save to File");
         saveButton.setOnAction(e -> handleSaveButton());
 
-        HBox buttonBox = new HBox(submitButton, saveButton);
+        HBox buttonBox = new HBox();
         buttonBox.setSpacing(10);
 
         grid.add(buttonBox, 1, 9);  // Змінено рядок для додавання нової кнопки
@@ -174,6 +172,13 @@ public class Calc extends Application {
         primaryStage.setScene(scene);
         String backgroundColorStyle = "-fx-background-color: #caacd7;";
         scene.getRoot().setStyle(backgroundColorStyle);
+
+        Button openChartButton = new Button("Open Chart");
+        openChartButton.setOnAction(e -> openChartTab());
+        openChartButton.setStyle(buttonStyle);
+        openChartButton.setPrefWidth(newWidth);
+
+        buttonBox.getChildren().addAll(submitButton, saveButton, openChartButton);
 
         primaryStage.show();
     }
@@ -315,6 +320,25 @@ public class Calc extends Application {
     private boolean isValid(String text) {
         return text.matches("-?\\d*\\.?\\d*") && text.indexOf('.') == -1;
     }
+
+    private void openChartTab() {
+        ChartController chartController = new ChartController();
+        ScatterChart<Number, Number> scatterChart = chartController.getScatterChart();
+
+        Tab chartTab = new Tab("Chart");
+        chartTab.setContent((Region) scatterChart);
+
+        TabPane tabPane = new TabPane();
+        tabPane.getTabs().addAll(chartTab);
+
+        Stage chartStage = new Stage();
+        chartStage.setTitle("Chart View");
+        chartStage.setScene(new Scene(tabPane, 800, 600));
+        chartStage.show();
+
+        chartController.updateChart(personList);
+    }
+
 
     private void calculateCalories(int age, int height, int weight, Gender gender, String activity, String goal) {
         // Основний коефіцієнт метаболізму (BMR) за формулою Harris-Benedic
